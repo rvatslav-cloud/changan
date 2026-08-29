@@ -1,0 +1,32 @@
+{% block title %}Отзывы - LG STORE{% endblock %}
+
+{% block content %}
+    <h2>Отзывы наших пользователей</h2>
+
+    {% for review in reviews %}
+        <div style="background: #f0f0f0; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+            <p>
+                <strong>{{ review.username }}</strong>
+                <span style="color: #ffb400;">
+                    {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= review.stars %}⭐{% endif %}
+                    {% endfor %}
+                </span>
+                <span style="color: #666; font-size: 0.9rem;">— Приложение: {{ review.app.name }}</span>
+            </p>
+            <p style="font-style: italic; margin: 5px 0;">"{{ review.comment }}"</p>
+            <p style="font-weight: bold; margin: 5px 0; color: #2a2a4e;">
+                {% if review.recommended %}
+                     Рекомендует
+                {% else %}
+                     Не рекомендует
+                {% endif %}
+            </p>
+            <p style="font-size: 0.8rem; color: #888; margin: 5px 0;">
+                {{ review.created_at|date:"d.m.Y H:i" }}
+            </p>
+        </div>
+    {% empty %}
+        <p>Пока нет ни одного отзыва. Будьте первым!</p>
+    {% endfor %}
+{% endblock %}
