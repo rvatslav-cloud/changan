@@ -1,5 +1,5 @@
-from django.shortcuts import render
-from pyexpat import features
+from django.shortcuts import render, get_object_or_404
+from django.http import  HttpResponse
 
 from .models import App, Review
 # Create your views here.
@@ -21,3 +21,7 @@ def reviews(request):
     return render(request, 'main/reviews.html',{
         'reviews' : all_reviews,
     })
+
+def app_detail(request,app_id):
+    app = get_object_or_404(App, id = app_id)
+    return render(request, 'main/app_detail.html', {'app': app})
