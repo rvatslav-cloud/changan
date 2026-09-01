@@ -1,0 +1,21 @@
+{% extends 'main/base.html' %}
+
+{% block title %} {{category.name}} - LG STORE {% endblock %}
+
+{% block content %}
+    <p><a href="{% url 'index' %}">< - Ко всем приложениям</a></p>
+
+    <h2> Категория: {{category.name}}</h2>
+
+     <ul>
+        {% for app in apps %}
+        <li>
+            <strong><a href="{% url 'app_detail' app.id %}">{{ app.name }}</a></strong> -
+            {% if app.price == 0 %}Бесплатно{% else %}{{ app.price }} $ {% endif %}
+        </li>
+        {% empty %}
+        <li> В этой категории приложений пока нет</li>
+        {% endfor %}
+    </ul>
+    <p>Всего в категории: {{apps|length}} </p>
+{% endblock %}
