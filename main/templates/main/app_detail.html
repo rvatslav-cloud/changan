@@ -7,9 +7,9 @@
 
     <h2>{{ app.name }}</h2>
 
-     <p>Категория:
+    <p>Категория:
         {% if app.category %}
-            <a href="{% url 'category' app.category.id %}">{{app.category}}</a>
+            <a href="{% url 'category' app.category.id %}">{{ app.category }}</a>
         {% else %}
             Без категории
         {% endif %}
@@ -18,10 +18,36 @@
         {% if app.price == 0 %}
             Бесплатно
         {% else %}
-            {{app.price }} $
+            {{ app.price }} $
         {% endif %}
     </p>
-     <p>{{ app.description|default:"Описание пока не добавлено" }}</p>
-
+    <p>{{ app.description|default:"Описание пока не добавлено" }}</p>
     <p>Добавлено: {{ app.created_at|date:"d.m.Y H:i" }}</p>
+    <p>Скачиваний: {{ app.downloads }}</p>
+
+
+    <h3>Отзывы ({{ app.reviews.count }})</h3>
+
+    {% for review in app.reviews.all %}
+        <div>
+            <p>
+                <strong>{{ review.username }}</strong>
+                <span>
+                    {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= review.stars %}⭐{% endif %}
+                    {% endfor %}
+                </span>
+            </p>
+            <p>"{{ review.comment }}"</p>
+            <p>
+                {% if review.recommended %}
+                    Рекомендует
+                {% else %}
+                    Не рекомендует
+                {% endif %}
+            </p>
+        </div>
+    {% empty %}
+        <p>Отзывов пока нет</p>
+    {% endfor %}
 {% endblock %}

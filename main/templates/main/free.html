@@ -1,0 +1,21 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Бесплатные приложения - LG STORE{% endblock %}
+
+{% block content %}
+    <h2>Бесплатные приложения</h2>
+
+    <ul>
+        {% for app in apps %}
+            <li>
+                <strong><a href="{% url 'app_detail' app.id %}">{{app.name}}</a></strong> - {{app.category}}<br>
+                {{app.description|truncatechars:60}}<br>
+                Скачиваний: {{ app.downloads }}
+            </li>
+        {% empty %}
+            <li>Бесплатных приложений пока нет</li>
+        {% endfor %}
+    </ul>
+
+    <p>Всего бесплатных приложений: {{ apps|length }}</p>
+{% endblock %}
