@@ -22,3 +22,8 @@ li{
     padding: 12px 16px;
     margin-bottom: 10px;
 }
+
+.active{
+    font-width: bold;
+    color: #000;
+}

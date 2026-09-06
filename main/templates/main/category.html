@@ -17,5 +17,10 @@
         <li> В этой категории приложений пока нет</li>
         {% endfor %}
     </ul>
+
+    {% if most_expensive %}
+    <h3>Самое дорогое приложение в этой категории</h3>
+    <p><a href="{% url 'app_detail' most_expensive.id %}">{{ most_expensive.name }}</a> — {{ most_expensive.price }} $</p>
+    {% endif %}
     <p>Всего в категории: {{apps|length}} </p>
 {% endblock %}

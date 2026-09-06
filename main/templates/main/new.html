@@ -1,0 +1,25 @@
+{% extends 'main/base.html' %}
+
+{% block title %} Новинки - LG STORE {% endblock %}
+
+{% block content %}
+
+    <h2>Новинки</h2>
+
+    <ul>
+        {% for app in apps %}
+        <li><a href="{% url 'app_detail' app.id %}">{{ app.name }}</a> -
+            Добавлено:  {{ app.created_at|date:"d.m.Y" }}
+            {% if app.price == 0 %}
+                Бесплатно
+            {% else %}
+                {{ app.price }} $
+            {% endif %}
+        </li>
+        {% empty %}
+        <li>Приложений пока нет</li>
+        {% endfor %}
+    </ul>
+
+    <p>Всего приложений: {{ apps|length }}</p>
+{% endblock %}

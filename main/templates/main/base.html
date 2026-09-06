@@ -10,9 +10,13 @@
     <h1> LG STORE </h1>
     <nav>
         <a href="{% url 'index' %}">Главная</a>
-        <a href="{% url 'about' %}">О магазине</a>
+        <a href="{% url 'new' %}">Новинки</a>
+         <a href="{% url 'top' %}" class="{% if request.path == '/top/' %}active{% endif %}">Топ по цене</a>
+        <a href="{% url 'free' %}" class="{% if request.path == '/free/' %}active{% endif %}">Бесплатные</a>
         <a href="{% url 'reviews' %}">Отзывы</a>
-        <a href="{% url 'free' %}">Бесплатные</a>
+        <a href="{% url 'about' %}">О магазине</a>
+
+
     </nav>
     {% block content %}{% endblock %}
 </body>

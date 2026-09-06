@@ -25,8 +25,16 @@
     <p>Добавлено: {{ app.created_at|date:"d.m.Y H:i" }}</p>
     <p>Скачиваний: {{ app.downloads }}</p>
 
+    {% if similar_by_price %}
+    <h3>Примерно за те же деньги</h3>
+    {% for similar in similar_by_price %}
+        <p><a href="{% url 'app_detail' similar.id %}">{{ similar.name }}</a> — {{ similar.price }} $</p>
+    {% empty %}
+        <p>Нет похожих по цене приложений</p>
+    {% endfor %}
+    {% endif %}
 
-    <h3>Отзывы ({{ app.reviews.count }})</h3>
+    <h4>Отзывы ({{ app.reviews.count }})</h4>
 
     {% for review in app.reviews.all %}
         <div>
