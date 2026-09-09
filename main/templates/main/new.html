@@ -4,10 +4,10 @@
 
 {% block content %}
 
-    <h2>Новинки</h2>
+    <h2>Новые приложения</h2>
 
     <ul>
-        {% for app in apps %}
+        {% for app in page_obj %}
         <li><a href="{% url 'app_detail' app.id %}">{{ app.name }}</a> -
             Добавлено:  {{ app.created_at|date:"d.m.Y" }}
             {% if app.price == 0 %}
@@ -21,5 +21,5 @@
         {% endfor %}
     </ul>
 
-    <p>Всего приложений: {{ apps|length }}</p>
+   <p>Всего приложений: {{ page_obj.paginator.count }}</p>
 {% endblock %}

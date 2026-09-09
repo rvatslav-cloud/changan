@@ -14,8 +14,16 @@
 
     <h2>Приложения в магазине</h2>
 
+<p>
+    | <a href="?sort=new{% if q %}&q={{ q }}{% endif %}">Новые</a> |
+    | <a href="?sort=name{% if q %}&q={{ q }}{% endif %}">По названию</a> |
+    | <a href="?sort=price{% if q %}&q={{ q }}{% endif %}">Сначала дешёвые</a> |
+    | <a href="?sort=expensive{% if q %}&q={{ q }}{% endif %}">Сначала дорогие</a> |
+
+</p>
+
     <ul>
-        {% for app in apps %}
+        {% for app in page_obj %}
         <li>
             <strong><a href="{% url 'app_detail' app.id %}">{{ app.name }}</a></strong> - {{ app.category }}<br>
             {{ app.description|truncatechars:60 }}<br>
@@ -31,5 +39,21 @@
         <li>Приложений пока нет</li>
         {% endfor %}
     </ul>
-    <p> Всего приложений: {{ apps|length }}</p>
+
+    <p>
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&sort={{ sort }}&q={{ q }}"><- Back</a>
+        {% else %}
+        <span><- Back</span>
+        {% endif %}
+
+        | Страница: {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}|
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&sort={{ sort }}&q={{ q }}">Next -></a>
+        {% else %}
+        <span>Next -></span>
+        {% endif %}
+    </p>
+    <p> Всего приложений: {{ page_obj|length }}</p>
 {% endblock %}
