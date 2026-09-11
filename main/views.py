@@ -17,7 +17,13 @@ SORTS = {
 
 def index(request):
     q = request.GET.get('q', '')
-    sort = request.GET.get('sort', 'new')
+    sort = request.GET.get('sort', '')
+
+    if not sort:
+        if q:
+            sort = 'name'
+        else:
+            sort = 'new'
 
     if q:
         apps = App.objects.filter(Q(name__icontains=q) | Q(description__icontains=q))

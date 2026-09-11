@@ -2,16 +2,17 @@
 
 {% block title %} {{category.name}} - LG STORE {% endblock %}
 
+{% block search_form %}
+<form method="GET" action="{% url 'category' category.id %}">
+    <input type="text" name="q" placeholder="Поиск в этой категории..." value="{{ q }}">
+    <button type="submit">Найти</button>
+</form>
+{% endblock %}
+
 {% block content %}
     <p><a href="{% url 'index' %}">< - Ко всем приложениям</a></p>
 
     <h2> Категория: {{category.name}}</h2>
-
-    <form method="GET" action="{% url 'category' category.id %}">
-        <input type="text" name="q" placeholder="Поиск в этой категории..." value="{{ q }}">
-        <button type="submit">Найти</button>
-
-    </form>
 
      <ul>
         {% for app in page_obj %}
@@ -28,7 +29,7 @@
     <h3>Самое дорогое приложение в этой категории</h3>
     <p><a href="{% url 'app_detail' most_expensive.id %}">{{ most_expensive.name }}</a> — {{ most_expensive.price }} $</p>
     {% endif %}
-    <p>Всего в категории: {{page_obj|length}} </p>
+    <p>Всего в категории: {{ page_obj.paginator.count }}</p>
 
     <p>
     {% if page_obj.has_previous %}

@@ -17,13 +17,15 @@
         <a href="{% url 'about' %}">О магазине</a>
     </nav>
 
+    {% block search_form %}
     <form method="GET" action="{% url 'index' %}">
         <input type="text" name="q" placeholder="Поиск приложений..." value="{{ q }}">
         {% if request.GET.sort %}
-            <input type="hidden" name="sort"  value="{{ request.GET.sort }}">
+        <input type="hidden" name="sort" value="{{ request.GET.sort }}">
         {% endif %}
         <button type="submit">Найти</button>
     </form>
+    {% endblock %}
     {% block content %}{% endblock %}
 </body>
 </html>
