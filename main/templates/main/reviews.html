@@ -15,7 +15,7 @@
                     {% endfor %}
                 </span>
                 — Приложение:
-                <a href="{% url 'app_detail' review.app.id %}">{{ review.app.name }}</a>
+                <a href="{% url 'main:app_detail' review.app.id %}">{{ review.app.name }}</a>
             </p>
             <p>"{{ review.comment }}"</p>
             <p>

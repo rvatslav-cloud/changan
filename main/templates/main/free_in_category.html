@@ -3,11 +3,11 @@
 {% block title %}Бесплатные в категории {{ category.name }}{% endblock %}
 
 {% block content%}
-    <p><a href="{% url 'category' category.id %}"><- Назад к категориям</a></p>
+    <p><a href="{% url 'main:category' category.id %}"><- Назад к категориям</a></p>
     <h2>Бесплатные приложения в категории "{{ category.name }}"</h2>
 
     {% for app in apps %}
-        <p><a href="{% url 'app_detail' app.id %}">{{ app.name }}</a></p>
+        <p><a href="{% url 'main:app_detail' app.id %}">{{ app.name }}</a></p>
     {% empty %}
         <p> Бесплатных приложений в этой категории нет</p>
     {% endfor %}

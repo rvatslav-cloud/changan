@@ -3,11 +3,11 @@
 {% block title %}Дешевле 100${% endblock %}
 
 {% block content %}
-    <p><a href="{% url 'index' %}"> <- На главную</a></p>
+    <p><a href="{% url 'main:index' %}"> <- На главную</a></p>
     <h2>Платные приложения дешевле 100 $</h2>
     
     {% for app in apps %}
-        <p><a href="{% url 'app_detail' app.id %}">{{ app.name }}</a> — {{ app.price }} $</p>
+        <p><a href="{% url 'main:app_detail' app.id %}">{{ app.name }}</a> — {{ app.price }} $</p>
     {% empty %}
         <p>Нет приложений дешевле 100 $</p>
     {% endfor %}

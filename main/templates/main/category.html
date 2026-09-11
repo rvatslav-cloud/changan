@@ -3,21 +3,21 @@
 {% block title %} {{category.name}} - LG STORE {% endblock %}
 
 {% block search_form %}
-<form method="GET" action="{% url 'category' category.id %}">
+<form method="GET" action="{% url 'main:category' category.id %}">
     <input type="text" name="q" placeholder="Поиск в этой категории..." value="{{ q }}">
     <button type="submit">Найти</button>
 </form>
 {% endblock %}
 
 {% block content %}
-    <p><a href="{% url 'index' %}">< - Ко всем приложениям</a></p>
+    <p><a href="{% url 'main:index' %}">< - Ко всем приложениям</a></p>
 
     <h2> Категория: {{category.name}}</h2>
 
      <ul>
         {% for app in page_obj %}
         <li>
-            <strong><a href="{% url 'app_detail' app.id %}">{{ app.name }}</a></strong> -
+            <strong><a href="{% url 'main:app_detail' app.id %}">{{ app.name }}</a></strong> -
             {% if app.price == 0 %}Бесплатно{% else %}{{ app.price }} $ {% endif %}
         </li>
         {% empty %}
@@ -27,7 +27,7 @@
 
     {% if most_expensive %}
     <h3>Самое дорогое приложение в этой категории</h3>
-    <p><a href="{% url 'app_detail' most_expensive.id %}">{{ most_expensive.name }}</a> — {{ most_expensive.price }} $</p>
+    <p><a href="{% url 'main:app_detail' most_expensive.id %}">{{ most_expensive.name }}</a> — {{ most_expensive.price }} $</p>
     {% endif %}
     <p>Всего в категории: {{ page_obj.paginator.count }}</p>
 

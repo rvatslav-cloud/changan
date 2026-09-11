@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import  HttpResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
@@ -123,3 +123,19 @@ def free_in_category(request, category_id):
 def cheap_apps(request):
     apps = App.objects.filter(price__lt = 100,price__gt = 0).order_by('price')
     return render(request,'main/cheap.html',{'apps' : apps})
+
+def app_detail_with_app_name(request, app_id, app_name):
+    print(f"Название из Url: {app_name}")
+    app = get_object_or_404(App, id=app_id)
+
+    if app_name != app.name:
+        return redirect('main:app_detail_with_app_name', app_id=app.id, app_name=app.name)
+
+    similar_by_price = App.objects.filter(
+        price__gte=app.price - 30,
+        price__lte=app.price + 30,
+    ).exclude(id=app.id)[:3]
+    return render(request, 'main/app_detail.html', {
+        'app': app,
+        'similar_by_price': similar_by_price,
+    })

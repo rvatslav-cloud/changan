@@ -3,11 +3,11 @@
 {% block title %}Приложения без категории{% endblock %}
 
 {% block content %}
-    <p><a href="{% url 'index' %}"> <- На главную</a></p>
+    <p><a href="{% url 'main:index' %}"> <- На главную</a></p>
     <h2>Приложения без категории</h2>
     
     {% for app in apps %}
-        <p><a href="{% url 'app_detail' app.id %}">{{ app.name }}</a></p>
+        <p><a href="{% url 'main:app_detail' app.id %}">{{ app.name }}</a></p>
     {% empty %}
         <p>Приложений без категории нет</p>
     {% endfor %}

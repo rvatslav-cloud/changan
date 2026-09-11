@@ -8,7 +8,7 @@
     <ul>
         {% for app in apps %}
             <li>
-                <strong><a href="{% url 'app_detail' app.id %}">{{app.name}}</a></strong> - {{app.category}}<br>
+                <strong><a href="{% url 'main:app_detail' app.id %}">{{app.name}}</a></strong> - {{app.category}}<br>
                 {{app.description|truncatechars:60}}<br>
                 Скачиваний: {{ app.downloads }}
             </li>
