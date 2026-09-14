@@ -1,0 +1,26 @@
+{% extends 'main/base.html' %}
+{% block title %} {{ title }} - LG STORE {% endblock %}
+{% block content %}
+
+    <h2>{{ title }}</h2>
+
+    <ul>
+        {% for app in apps %}
+        <li>
+            <strong><a href="{% url 'main:app_detail_with_app_name' app.id app.name %}">{{ app.name }}</a></strong> - {{ app.category }}<br>
+            {{ app.description|truncatechars:60 }}<br>
+            {% if app.price == 0 %}
+                Бесплатно
+            {% else %}
+                {{ app.price }} $
+            {% endif %}
+            <br>
+            Скачиваний:{{ app.downloads }}
+        </li>
+        {% empty %}
+        <li>Приложений пока нет</li>
+        {% endfor %}
+    </ul>
+
+    <p>Всего приложений: {{ apps|length }}</p>
+{% endblock %}

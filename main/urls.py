@@ -25,4 +25,10 @@ urlpatterns = [
 
     path('free/<int:category_id>/', views.free_in_category, name='free_in_category'),
     path('cheap/', views.cheap_apps, name='cheap'),
+
+    path('api/app/<int:app_id>/', views.app_jason, name='app_json'),
+
+    path('free-apps/', views.apps_list, {'is_free': True}, name='free_apps'),
+    path('paid-apps/', views.apps_list, {'is_free': False}, name='paid_apps'),
+
 ]
