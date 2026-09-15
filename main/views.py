@@ -4,6 +4,8 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_GET
 
+from django.views.generic import TemplateView, ListView, DetailView
+
 
 from .models import App, Review, Category
 # Create your views here.
@@ -14,41 +16,38 @@ SORTS = {
     'price' : 'price',
     'expensive' : '-price',
 }
-@require_GET
-def index(request):
-    q = request.GET.get('q', '')
-    sort = request.GET.get('sort', '')
-    if not sort:
+
+class IndexView(ListView):
+    model = App
+    template_name = 'main/index.html'
+    context_object_name = 'apps'
+    paginate_by = 3
+
+    def get_queryset(self):
+        q = self.request.GET.get('q', '')
+        sort = self.request.GET.get('sort', '')
+
+        if not sort:
+            sort = 'name' if q else 'new'
+
         if q:
-            sort = 'name'
+            apps = App.objects.filter(Q(name__icontains=q) | Q(description__icontains=q))
         else:
-            sort = 'new'
+            apps = App.objects.all()
 
-    if q:
-        apps = App.objects.filter(Q(name__icontains=q) | Q(description__icontains=q))
-    else:
-        apps = App.objects.all()
+        return apps.order_by(SORTS.get(sort, '-created_at'))
 
-    apps = apps.order_by(SORTS.get(sort, '-created_at'))
-    featured = App.objects.order_by('-price').first()
-    categories = Category.objects.all()
-
-    paginator = Paginator(apps,3)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    return render(request, 'main/index.html',{
-        'q' : q,
-        'sort': sort,
-        'page_obj' : page_obj,
-        'featured' : featured,
-        'categories' : categories,
-    })
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['q'] = self.request.GET.get('q', '')
+        context['sort'] = self.request.GET.get('sort', '')
+        context['featured'] = App.objects.order_by('-price').first()
+        context['categories'] = Category.objects.all()
+        return context
 
 
-@require_GET
-def about(request):
-    return render(request, 'main/about.html')
+class AboutView(TemplateView):
+    template_name = 'main/about.html'
 
 
 @require_GET
@@ -58,17 +57,32 @@ def reviews(request):
         'reviews' : all_reviews,
     })
 
-@require_GET
-def app_detail(request,app_id):
-    app = get_object_or_404(App, id = app_id)
-    similar_by_price = App.objects.filter(
-        price__gte=app.price - 30,
-        price__lte=app.price + 30,
-    ).exclude(id=app.id)[:3]
-    return render(request, 'main/app_detail.html', {
-        'app': app,
-        'similar_by_price': similar_by_price,
-    })
+# @require_GET
+# def app_detail(request,app_id):
+#     app = get_object_or_404(App, id = app_id)
+#     similar_by_price = App.objects.filter(
+#         price__gte=app.price - 30,
+#         price__lte=app.price + 30,
+#     ).exclude(id=app.id)[:3]
+#     return render(request, 'main/app_detail.html', {
+#         'app': app,
+#         'similar_by_price': similar_by_price,
+#     })
+class AppDetailView(DetailView):
+    model = App
+    template_name = 'main/app_detail.html'
+    context_object_name = 'app'
+    pk_url_kwarg = 'app_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        app = self.object
+        context['similar_by_price'] = App.objects.filter(
+            price__gte = app.price - 30,
+            price__lte=app.price + 30,
+        ).exclude(id=app.id)[:3]
+        return context
+
 
 @require_GET
 def category_detail(request,category_id):
@@ -165,7 +179,7 @@ def apps_list(request, is_free):
 
 
 @require_GET
-def app_jason(request, app_id):
+def app_json(request, app_id):
     app = get_object_or_404(App, id=app_id)
     data = {
         'id': app.id,
@@ -177,4 +191,3 @@ def app_jason(request, app_id):
         'created_at' : app.created_at.strftime('%Y-%m-%d %H:%M:%S'),
     }
     return JsonResponse(data)
-
