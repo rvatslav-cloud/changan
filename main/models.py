@@ -31,7 +31,7 @@ class App(models.Model):
         verbose_name_plural = 'Приложения'
 
 
-# 🔥 НОВАЯ МОДЕЛЬ Review
+
 class Review(models.Model):
     app = models.ForeignKey(
         App,

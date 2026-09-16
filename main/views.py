@@ -2,11 +2,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import  HttpResponse, JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
+
 
 from django.views.generic import TemplateView, ListView, DetailView
 
-
+from .forms import ReviewForm
 from .models import App, Review, Category
 # Create your views here.
 
@@ -81,6 +82,8 @@ class AppDetailView(DetailView):
             price__gte = app.price - 30,
             price__lte=app.price + 30,
         ).exclude(id=app.id)[:3]
+        context['form'] = ReviewForm()
+        context['reviews'] = app.reviews.all()
         return context
 
 
@@ -191,3 +194,26 @@ def app_json(request, app_id):
         'created_at' : app.created_at.strftime('%Y-%m-%d %H:%M:%S'),
     }
     return JsonResponse(data)
+
+@require_POST
+def add_review(request, app_id):
+    app = get_object_or_404(App, id=app_id)
+    form = ReviewForm(request.POST)
+
+    if form.is_valid():
+        review = form.save(commit=False)
+        review.app = app
+        review.save()
+        return redirect('main:app_detail', app_id=app.id)
+
+    reviews = app.reviews.all()
+    similar_by_price = App.objects.filter(
+        price__gte=app.price - 30,
+        price__lte=app.price + 30,
+    ).exclude(id=app.id)[:3]
+    return render(request, 'main/app_detail.html', {
+        'app': app,
+        'form': form,
+        'reviews': reviews,
+        'similar_by_price': similar_by_price,
+    })

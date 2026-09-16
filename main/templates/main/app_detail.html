@@ -56,6 +56,14 @@
             </p>
         </div>
     {% empty %}
-        <p>Отзывов пока нет</p>
+        <p>Отзывов пока нет. Будьте первым!</p>
     {% endfor %}
+
+    <h4>Оставь отзыв</h4>
+
+    <form method="post" action="{% url 'main:add_review' app.id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Отправить отзыв</button>
+    </form>
 {% endblock %}
