@@ -2,12 +2,7 @@
 {% block title %} Главная - LG STORE {% endblock %}
 {% block content %}
 
-    <p>Категории:
-        {% for category in categories %}
-            <a href="{% url 'main:category' category.id %}">{{category.name}}</a>
-            ({{ category.app_set.count }}){% if not forloop.last %} . {% endif %}
-        {% endfor %}
-    </p>
+
 
     {% if featured %}
         <p>Приложение дня: <strong><a href="{% url 'main:app_detail' featured.id %}">{{featured.name}}</a></strong></p>
@@ -58,5 +53,5 @@
         {% endif %}
     </p>
     {% endif %}
-    <p> Всего приложений: {{ page_obj|length }}</p>
+    <p> Всего приложений на странице: {{ page_obj|length }}</p>
 {% endblock %}

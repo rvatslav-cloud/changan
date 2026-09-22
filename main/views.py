@@ -36,14 +36,13 @@ class IndexView(ListView):
         else:
             apps = App.objects.all()
 
-        return apps.order_by(SORTS.get(sort, '-created_at'))
+        return apps.order_by(SORTS.get(sort, '-сreated_at'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['q'] = self.request.GET.get('q', '')
         context['sort'] = self.request.GET.get('sort', '')
         context['featured'] = App.objects.order_by('-price').first()
-        context['categories'] = Category.objects.all()
         return context
 
 
