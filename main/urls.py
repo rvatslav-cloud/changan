@@ -33,6 +33,6 @@ urlpatterns = [
     path('free-apps/', views.apps_list, {'is_free': True}, name='free_apps'),
     path('paid-apps/', views.apps_list, {'is_free': False}, name='paid_apps'),
 
-
+    path('add-app/', views.add_app,  name='add_app'),
 
 ]

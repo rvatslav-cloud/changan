@@ -12,10 +12,11 @@
         <a href="{% url 'main:index' %}">Главная</a>
         <a href="{% url 'main:new' %}">Новинки</a>
         <a href="{% url 'main:top' %}" class="{% if request.path == '/top/' %}active{% endif %}">Топ по цене</a>
-        <a href="{% url 'main:free_apps' %}">Бесплатные</a>
-        <a href="{% url 'main:paid_apps' %}">Платные</a>
         <a href="{% url 'main:reviews' %}">Отзывы</a>
         <a href="{% url 'main:about' %}">О магазине</a>
+        <a href="{% url 'main:free_apps' %}">Бесплатные</a>
+        <a href="{% url 'main:paid_apps' %}">Платные</a>
+        <a href="{% url 'main:add_app' %}">Добавить приложение</a>
 
     </nav>
 

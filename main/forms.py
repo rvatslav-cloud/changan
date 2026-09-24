@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 
-from .models import Review
+from .models import Review, App
 
 
 class ReviewForm(forms.ModelForm):
@@ -20,3 +20,15 @@ class ReviewForm(forms.ModelForm):
         if stars < 1 or stars > 5:
             raise forms.ValidationError('Оценка должна быть от 1 до 5.')
         return stars
+
+class AppForm(forms.ModelForm):
+    class Meta:
+        model = App
+        fields = ['name', 'description', 'price','category', 'icon']
+        labels = {
+            'name' : 'Название',
+            'description' : 'Оприсание',
+            'price' : 'Цена',
+            'category' : 'Категория',
+            'icon' : 'Иконка',
+        }

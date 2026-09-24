@@ -7,6 +7,12 @@
 
     <h2>{{ app.name }}</h2>
 
+    {% if app.icon %}
+        <p><img src="{{ app.icon.url }}" alt="{{ app.name }}" class="app-icon-lg"></p>
+    {% else %}
+        <p>Иконка пока не загружена</p>
+    {% endif %}
+
     <p>Категория:
         {% if app.category %}
             <a href="{% url 'main:category' app.category.id %}">{{ app.category }}</a>

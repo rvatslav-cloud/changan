@@ -7,7 +7,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from django.views.generic import TemplateView, ListView, DetailView
 
-from .forms import ReviewForm
+from .forms import ReviewForm, AppForm
 from .models import App, Review, Category
 # Create your views here.
 
@@ -216,3 +216,13 @@ def add_review(request, app_id):
         'reviews': reviews,
         'similar_by_price': similar_by_price,
     })
+
+def add_app(request):
+    if request.method == 'POST':
+        form = AppForm(request.POST, request.FILES)
+        if form.is_valid():
+            app = form.save()
+            return redirect('main:app_detail', app_id=app.id)
+    else:
+        form = AppForm()
+    return render(request,'main/add_app.html', {'form' : form})

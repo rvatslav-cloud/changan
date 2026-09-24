@@ -219,3 +219,6 @@ __marimo__/
 
 
 db.sqlite3
+
+.idea
+/media/

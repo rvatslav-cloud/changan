@@ -1,11 +1,14 @@
 {% extends 'main/base.html' %}
+
 {% block title %} Главная - LG STORE {% endblock %}
+
 {% block content %}
-
-
-
     {% if featured %}
-        <p>Приложение дня: <strong><a href="{% url 'main:app_detail' featured.id %}">{{featured.name}}</a></strong></p>
+        <p>Приложение дня:
+            {% if featured.icon %}
+            <img src="{{ featured.icon.url }}" alt="" class="app-icon">
+            {% endif %}
+            <strong><a href="{% url 'main:app_detail' featured.id %}">{{featured.name}}</a></strong></p>
     {% endif %}
 
     <h2>Приложения в магазине</h2>
@@ -21,6 +24,9 @@
     <ul>
         {% for app in apps %}
         <li>
+             {% if app.icon %}
+            <img src="{{ app.icon.url }}" alt="" class="app-icon">
+            {% endif %}
             <strong><a href="{% url 'main:app_detail_with_app_name' app.id app.name %}">{{ app.name }}</a></strong> - {{ app.category }}<br>
             {{ app.description|truncatechars:60 }}<br>
             {% if app.price == 0 %}
