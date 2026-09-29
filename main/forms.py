@@ -1,5 +1,7 @@
 from django import forms
 from django.forms import ModelForm
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 from .models import Review, App
 
@@ -27,8 +29,20 @@ class AppForm(forms.ModelForm):
         fields = ['name', 'description', 'price','category', 'icon']
         labels = {
             'name' : 'Название',
-            'description' : 'Оприсание',
+            'description' : 'Описание',
             'price' : 'Цена',
             'category' : 'Категория',
             'icon' : 'Иконка',
         }
+
+
+class RegisterForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'password1', 'password2']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+        self.fields['username'].label = 'Имя пользователя'
+        self.fields['password1'].label = 'Введите пароль'
+        self.fields['password2'].label = 'Повторите пароль'

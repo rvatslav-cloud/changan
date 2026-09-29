@@ -67,9 +67,15 @@
 
     <h4>Оставь отзыв</h4>
 
+    {% if user.is_authenticated %}
+        <p>Отзыв будет опубликован от имени <strong>{{ user.username }}</strong>.</p>
+    {% else %}
+        <p>Вы можете оставить отзыв без входа или <a href="{% url 'main:login' %}">войти</a>, чтобы подписать его своим аккаунтом.</p>
+    {% endif %}
+
     <form method="post" action="{% url 'main:add_review' app.id %}">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Отправить отзыв</button>
     </form>
-{% endblock %}
+{% endblock %}ё

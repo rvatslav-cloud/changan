@@ -1,13 +1,20 @@
+from http.client import responses
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import  HttpResponse, JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_GET, require_POST
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib import messages
+from django.urls import reverse_lazy
 
 
 from django.views.generic import TemplateView, ListView, DetailView
 
-from .forms import ReviewForm, AppForm
+from .forms import ReviewForm, AppForm, RegisterForm
 from .models import App, Review, Category
 # Create your views here.
 
@@ -81,7 +88,10 @@ class AppDetailView(DetailView):
             price__gte = app.price - 30,
             price__lte=app.price + 30,
         ).exclude(id=app.id)[:3]
-        context['form'] = ReviewForm()
+        form = ReviewForm()
+        if self.request.user.is_authenticated and 'username' in form.fields:
+            form.fields.pop('username')
+        context['form'] = form
         context['reviews'] = app.reviews.all()
         return context
 
@@ -194,17 +204,24 @@ def app_json(request, app_id):
     }
     return JsonResponse(data)
 
+
 @require_POST
 def add_review(request, app_id):
     app = get_object_or_404(App, id=app_id)
-    form = ReviewForm(request.POST)
+    data = request.POST.copy()
+    if request.user.is_authenticated:
+        data['username'] = request.user.username
+    form = ReviewForm(data)
 
     if form.is_valid():
         review = form.save(commit=False)
         review.app = app
         review.save()
+        messages.success(request, 'Отзыв сохранён.')
         return redirect('main:app_detail', app_id=app.id)
 
+    if request.user.is_authenticated and 'username' in form.fields:
+        form.fields.pop('username')
     reviews = app.reviews.all()
     similar_by_price = App.objects.filter(
         price__gte=app.price - 30,
@@ -217,12 +234,44 @@ def add_review(request, app_id):
         'similar_by_price': similar_by_price,
     })
 
+
+@login_required
 def add_app(request):
     if request.method == 'POST':
         form = AppForm(request.POST, request.FILES)
         if form.is_valid():
             app = form.save()
+            messages.success(request, f'Приложение {app.name} опубликовано.')
             return redirect('main:app_detail', app_id=app.id)
     else:
         form = AppForm()
     return render(request,'main/add_app.html', {'form' : form})
+
+
+def register(request):
+    if request.user.is_authenticated:
+        return redirect('main:index')
+
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request,f"Добро пожаловать, { user.username }. Ваш аккаунт создан!")
+            return redirect('main:index')
+    else:
+        form = RegisterForm()
+    return render(request, 'main/register.html',{'form' : form})
+
+class StoreLoginView(LoginView):
+    template_name = 'main/login.html'
+    redirect_authenticated_user = True
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f"С возвращением,{{ self.request.user.username }}!")
+        return response
+
+
+class StoreLogoutView(LogoutView):
+    next_page = reverse_lazy('main:index')
