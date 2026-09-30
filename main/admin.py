@@ -11,8 +11,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(App)
 class AppAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price', 'downloads', 'created_at']
-    list_filter = ['category', 'created_at']
+    list_display = ['name', 'category', 'price', 'downloads','author', 'created_at']
+    list_filter = ['category', 'author', 'created_at']
     search_fields = ['name', 'description']
     list_editable = ['price', 'downloads']
 

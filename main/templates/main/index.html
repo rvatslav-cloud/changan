@@ -28,6 +28,7 @@
             <img src="{{ app.icon.url }}" alt="" class="app-icon">
             {% endif %}
             <strong><a href="{% url 'main:app_detail_with_app_name' app.id app.name %}">{{ app.name }}</a></strong> - {{ app.category }}<br>
+            Автор: {% if app.author %}{{ app.author.username }}{% else %}не указан{% endif %}<br>
             {{ app.description|truncatechars:60 }}<br>
             {% if app.price == 0 %}
                 Бесплатно

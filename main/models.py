@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -21,6 +21,7 @@ class App(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     icon = models.ImageField(upload_to='icons/', blank=True)
+    author = models.ForeignKey(User,on_delete=models.SET_NULL, null=True, blank=True,related_name='apps')
 
     downloads = models.IntegerField(default=0, verbose_name='Количество скачиваний')
 

@@ -1,0 +1,16 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Редактировать {{ app.name }} - LG STORE{% endblock %}
+
+{% block content %}
+    <h2>Редактировать «{{ app.name }}»</h2>
+    <p>Если новую иконку не выбирать, останется текущая. Галочка Clear под полем файла удаляет её.</p>
+
+    <form method="post" action="{% url 'main:edit_app' app.id %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить</button>
+    </form>
+
+    <p><a href="{% url 'main:app_detail' app.id %}">Назад к карточке</a></p>
+{% endblock %}
