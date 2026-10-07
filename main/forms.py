@@ -37,12 +37,19 @@ class AppForm(forms.ModelForm):
 
 
 class RegisterForm(UserCreationForm):
+    email = forms.EmailField(label = 'Электронная почта')
     class Meta:
         model = User
-        fields = ['username', 'password1', 'password2']
+        fields = ['username', 'email','password1', 'password2']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args,**kwargs)
         self.fields['username'].label = 'Имя пользователя'
         self.fields['password1'].label = 'Введите пароль'
         self.fields['password2'].label = 'Повторите пароль'
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].strip().lower()
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('Аккаунт с такой почтой уже есть.')
+        return email

@@ -40,7 +40,7 @@
     </p>
 
      {% if user.is_authenticated %}
-        {% if user.is_staff or app.author_id == user.id %}
+        {% if perms.main.change_app or user.is_staff or app.author_id == user.id %}
             <p><a href="{% url 'main:edit_app' app.id %}">Редактировать</a></p>
         {% endif %}
      {% endif %}
