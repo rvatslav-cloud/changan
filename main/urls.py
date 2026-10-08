@@ -11,6 +11,9 @@ urlpatterns = [
     #  app-маршруты: от конкретных к общим
     path('app/<int:app_id>/review/', views.add_review, name='add_review'),
     path('app/<int:app_id>/edit/', views.edit_app, name='edit_app'),
+
+    path('app/<int:app_id>/favorite/', views.toggle_favorite, name='toggle_favorite'),
+
     path('app/<int:app_id>/<str:app_name>/', views.app_detail_with_app_name, name='app_detail_with_app_name'),
     path('app/<int:app_id>/', views.AppDetailView.as_view(), name='app_detail'),
 
@@ -42,5 +45,8 @@ urlpatterns = [
     path('password-reset/', views.StorePasswordResetView.as_view(), name='password_reset'),
     path('password-reset/done/', views.StorePasswordResetDoneView.as_view(), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', views.StorePasswordResetConfirmView.as_view(),name='password_reset_confirm'),
-    path('reset/complete',views.StorePasswordResetCompleteView.as_view(), name='password_reset_complete')
+    path('reset/complete/',views.StorePasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    # Избранное
+    path('favorites/', views.favorites, name='favorites'),
+
 ]

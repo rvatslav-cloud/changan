@@ -15,6 +15,7 @@ class AppAdmin(admin.ModelAdmin):
     list_filter = ['category', 'author', 'created_at']
     search_fields = ['name', 'description']
     list_editable = ['price', 'downloads']
+    filter_horizontal = ('favorited_by',)
 
 
 @admin.register(Review)

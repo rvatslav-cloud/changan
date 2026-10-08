@@ -1,0 +1,24 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Избранное - LG STORE{% endblock %}
+
+{% block content %}
+    <h2>Избранное</h2>
+
+    <p>Приложение, которое сохранили вы, {{ user.username }}</p>
+
+    <ul>
+        {% for app in apps %}
+            <li>
+                <a href="{% url 'main:app_detail' app.id %}">{{ app.name }}</a>
+                -
+                {% if app.price == 0 %}Бесплатно{% else %}{{ app.price }} ${% endif %}
+                -
+                автор:
+                {% if app.author %}{{ app.author.username }}{% else %}не указан{% endif %}
+            </li>
+        {% empty %}
+            <li>В избранном пока пусто. Откройте карточку приложения и нажмите «В избранное».</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

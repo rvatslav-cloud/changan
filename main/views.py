@@ -15,7 +15,7 @@ from django.contrib.auth.views import (
     PasswordResetCompleteView,
 )
 from django.contrib import messages
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 
 
 from django.views.generic import TemplateView, ListView, DetailView
@@ -70,17 +70,7 @@ def reviews(request):
         'reviews' : all_reviews,
     })
 
-# @require_GET
-# def app_detail(request,app_id):
-#     app = get_object_or_404(App, id = app_id)
-#     similar_by_price = App.objects.filter(
-#         price__gte=app.price - 30,
-#         price__lte=app.price + 30,
-#     ).exclude(id=app.id)[:3]
-#     return render(request, 'main/app_detail.html', {
-#         'app': app,
-#         'similar_by_price': similar_by_price,
-#     })
+
 class AppDetailView(DetailView):
     model = App
     template_name = 'main/app_detail.html'
@@ -99,6 +89,10 @@ class AppDetailView(DetailView):
             form.fields.pop('username')
         context['form'] = form
         context['reviews'] = app.reviews.all()
+        context['is_favorite'] = (
+                self.request.user.is_authenticated
+                and app.favorited_by.filter(pk=self.request.user.pk).exists()
+        )
         return context
 
 
@@ -238,6 +232,10 @@ def add_review(request, app_id):
         'form': form,
         'reviews': reviews,
         'similar_by_price': similar_by_price,
+        'is_favorite':(
+            request.user.is_authenticated
+            and app.favorited_by.filter(pk=request.user.pk).exists()
+        ),
     })
 
 
@@ -340,3 +338,28 @@ class StorePasswordResetConfirmView(PasswordResetConfirmView):
 
 class StorePasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'main/password_reset_complete.html'
+
+@login_required
+def favorites(request):
+    apps = (
+        request.user.favorite_apps
+        .select_related('category','author')
+        .order_by('name')
+    )
+    return render(request, 'main/favorites.html', {'apps' : apps})
+
+@require_POST
+def toggle_favorite(request, app_id):
+    app = get_object_or_404(App, id=app_id)
+    if not request.user.is_authenticated:
+        login_url = reverse('main:login')
+        next_url = reverse('main:app_detail', args=[app.id])
+        return redirect(f'{login_url}?next={next_url}')
+    if app.favorited_by.filter(pk=request.user.pk).exists():
+        app.favorited_by.remove(request.user)
+        messages.success(request, f'{app.name} убрано из Избранного.')
+    else:
+        app.favorited_by.add(request.user)
+        messages.success(request, f'{app.name} в Избранном.')
+    return redirect('main:app_detail', app_id=app.id)
+

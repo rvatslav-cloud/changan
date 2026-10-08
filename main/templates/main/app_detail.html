@@ -39,11 +39,25 @@
         {% endif %}
     </p>
 
-     {% if user.is_authenticated %}
+    {% if user.is_authenticated %}
+        <form method="post" action="{% url 'main:toggle_favorite' app.id %}">
+            {% csrf_token %}
+            {% if is_favorite %}
+                <button type="submit">Убрать из Избранного</button>
+            {% else %}
+                <button type="submit">В Избранное</button>
+            {% endif %}
+        </form>
+    {% else %}
+        <p><a href="{% url 'main:login' %}?next={{ request.path }}">Войдите</a>, чтобы сохранить приложение в избранное.</p>
+    {% endif %}
+
+
+    {% if user.is_authenticated %}
         {% if perms.main.change_app or user.is_staff or app.author_id == user.id %}
-            <p><a href="{% url 'main:edit_app' app.id %}">Редактировать</a></p>
+        <p><a href="{% url 'main:edit_app' app.id %}">Редактировать</a></p>
         {% endif %}
-     {% endif %}
+    {% endif %}
 
     {% if similar_by_price %}
     <h3>Примерно за те же деньги</h3>
@@ -92,4 +106,4 @@
         {{ form.as_p }}
         <button type="submit">Отправить отзыв</button>
     </form>
-{% endblock %}ё
+{% endblock %}
