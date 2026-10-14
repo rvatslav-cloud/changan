@@ -68,6 +68,14 @@
     {% endfor %}
     {% endif %}
 
+    <p>
+        {% if app.rating_count %}
+            Средняя оценка: {{ app.rating_avg }} из 5 (отзывов: {{ app.rating_count }})
+        {% else %}
+            Оценок пока нет
+        {% endif %}
+    </p>
+
     <h4>Отзывы ({{ app.reviews.count }})</h4>
 
     {% for review in app.reviews.all %}

@@ -1,3 +1,5 @@
+from email.header import decode_header
+
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -23,6 +25,18 @@ class App(models.Model):
     icon = models.ImageField(upload_to='icons/', blank=True)
     author = models.ForeignKey(User,on_delete=models.SET_NULL, null=True, blank=True,related_name='apps')
     favorited_by =models.ManyToManyField(User, related_name='favorite_apps', blank=True, verbose_name='В Избранном у',)
+    rating_avg = models.DecimalField(
+        max_digits=2,
+        decimal_places=1,
+        default=0,
+        editable=False,
+        verbose_name= 'Средняя оценка',
+    )
+    rating_count = models.PositiveIntegerField(
+        default=0,
+        editable=False,
+        verbose_name= 'Число оценок',
+    )
 
     downloads = models.IntegerField(default=0, verbose_name='Количество скачиваний')
 
@@ -40,7 +54,8 @@ class Review(models.Model):
         App,
         on_delete=models.CASCADE,
         related_name='reviews',
-        verbose_name='Приложение'
+        verbose_name='Приложение',
+
     )
     username = models.CharField(max_length=50, verbose_name='Имя пользователя')
     comment = models.TextField(blank=True, verbose_name='Комментарий')

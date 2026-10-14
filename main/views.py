@@ -49,7 +49,12 @@ class IndexView(ListView):
         else:
             apps = App.objects.all()
 
-        return apps.select_related('author').order_by(SORTS.get(sort, '-сreated_at'))
+        apps = apps.select_related('author')
+        if sort == 'rating':
+            apps = apps.order_by('-rating_avg', '-rating_count', 'name')
+        else:
+            apps = apps.order_by(SORTS.get(sort, '-created_at'))
+        return apps
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

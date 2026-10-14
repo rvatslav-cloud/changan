@@ -18,6 +18,7 @@
     | <a href="?sort=name{% if q %}&q={{ q }}{% endif %}">По названию</a> |
     | <a href="?sort=price{% if q %}&q={{ q }}{% endif %}">Сначала дешёвые</a> |
     | <a href="?sort=expensive{% if q %}&q={{ q }}{% endif %}">Сначала дорогие</a> |
+    | <a href="?sort=rating{% if q %}&q={{ q }}{% endif %}">Сначала лучшие</a> |
 
 </p>
 
@@ -27,13 +28,23 @@
              {% if app.icon %}
             <img src="{{ app.icon.url }}" alt="" class="app-icon">
             {% endif %}
-            <strong><a href="{% url 'main:app_detail_with_app_name' app.id app.name %}">{{ app.name }}</a></strong> - {{ app.category }}<br>
-            Автор: {% if app.author %}{{ app.author.username }}{% else %}не указан{% endif %}<br>
-            {{ app.description|truncatechars:60 }}<br>
+            <strong><a href="{% url 'main:app_detail_with_app_name' app.id app.name %}">{{ app.name }}</a></strong>
+            - {{ app.category }}
+            <br>
+            Автор: {% if app.author %}{{ app.author.username }}{% else %}не указан{% endif %}
+            <br>
+            {{ app.description|truncatechars:60 }}
+            <br>
             {% if app.price == 0 %}
                 Бесплатно
             {% else %}
                 {{ app.price }} $
+            {% endif %}
+            <br>
+            {% if app.rating_count %}
+                оценка {{ app.rating_avg }} ({{ app.rating_count }})
+            {% else %}
+                нет оценок
             {% endif %}
             <br>
             Скачиваний:{{ app.downloads }}
