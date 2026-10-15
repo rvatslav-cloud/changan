@@ -48,5 +48,6 @@ urlpatterns = [
     path('reset/complete/',views.StorePasswordResetCompleteView.as_view(), name='password_reset_complete'),
     # Избранное
     path('favorites/', views.favorites, name='favorites'),
+    path('sale/', views.sale, name='sale')
 
 ]

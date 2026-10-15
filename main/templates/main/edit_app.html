@@ -12,5 +12,5 @@
         <button type="submit">Сохранить</button>
     </form>
 
-    <p><a href="{% url 'main:app_detail' app.id %}">Назад к карточке</a></p>
+    <p><a href="{{ app.get_absolute_url }}">Назад к карточке</a></p>
 {% endblock %}

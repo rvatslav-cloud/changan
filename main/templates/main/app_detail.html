@@ -20,13 +20,8 @@
             Без категории
         {% endif %}
     </p>
-    <p>
-        {% if app.price == 0 %}
-            Бесплатно
-        {% else %}
-            {{ app.price }} $
-        {% endif %}
-    </p>
+    <p><strong>{{ app.price_label }}</strong></p>
+
     <p>{{ app.description|default:"Описание пока не добавлено" }}</p>
     <p>Добавлено: {{ app.created_at|date:"d.m.Y H:i" }}</p>
     <p>Скачиваний: {{ app.downloads }}</p>
@@ -59,10 +54,10 @@
         {% endif %}
     {% endif %}
 
-    {% if similar_by_price %}
+    {% if similar_apps %}
     <h3>Примерно за те же деньги</h3>
-    {% for similar in similar_by_price %}
-        <p><a href="{% url 'main:app_detail' similar.id %}">{{ similar.name }}</a> — {{ similar.price }} $</p>
+    {% for similar in similar_apps %}
+        <p><a href="{{ similar.get_absolute_url }}">{{ similar.name }}</a> — {{ similar.price_label }}</p>
     {% empty %}
         <p>Нет похожих по цене приложений</p>
     {% endfor %}

@@ -85,10 +85,7 @@ class AppDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         app = self.object
-        context['similar_by_price'] = App.objects.filter(
-            price__gte = app.price - 30,
-            price__lte=app.price + 30,
-        ).exclude(id=app.id)[:3]
+        context['similar_apps'] = app.similar_by_price()
         form = ReviewForm()
         if self.request.user.is_authenticated and 'username' in form.fields:
             form.fields.pop('username')
@@ -172,14 +169,13 @@ def app_detail_with_app_name(request, app_id, app_name):
     if app_name != app.name:
         return redirect('main:app_detail_with_app_name', app_id=app.id, app_name=app.name)
 
-    similar_by_price = App.objects.filter(
-        price__gte=app.price - 30,
-        price__lte=app.price + 30,
-    ).exclude(id=app.id)[:3]
+    similar_apps = app.similar_by_price()
     return render(request, 'main/app_detail.html', {
         'app': app,
-        'similar_by_price': similar_by_price,
+        'similar_apps': similar_apps,
     })
+
+
 @require_GET
 def apps_list(request, is_free):
     if is_free:
@@ -200,12 +196,12 @@ def app_json(request, app_id):
     app = get_object_or_404(App, id=app_id)
     data = {
         'id': app.id,
-        'name' : app.name,
-        'description' : app.description,
-        'price' : float(app.price),
-        'downloads' : app.downloads,
+        'name': app.name,
+        'description': app.description,
+        'price': float(app.price),
+        'downloads': app.downloads,
         'category': app.category.name if app.category else None,
-        'created_at' : app.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+        'created_at': app.created_at.strftime('%Y-%m-%d %H:%M:%S'),
     }
     return JsonResponse(data)
 
@@ -223,23 +219,20 @@ def add_review(request, app_id):
         review.app = app
         review.save()
         messages.success(request, 'Отзыв сохранён.')
-        return redirect('main:app_detail', app_id=app.id)
+        return redirect(app.get_absolute_url())
 
     if request.user.is_authenticated and 'username' in form.fields:
         form.fields.pop('username')
     reviews = app.reviews.all()
-    similar_by_price = App.objects.filter(
-        price__gte=app.price - 30,
-        price__lte=app.price + 30,
-    ).exclude(id=app.id)[:3]
+    similar_apps = app.similar_by_price()
     return render(request, 'main/app_detail.html', {
         'app': app,
         'form': form,
         'reviews': reviews,
-        'similar_by_price': similar_by_price,
-        'is_favorite':(
-            request.user.is_authenticated
-            and app.favorited_by.filter(pk=request.user.pk).exists()
+        'similar_apps': similar_apps,
+        'is_favorite': (
+                request.user.is_authenticated
+                and app.favorited_by.filter(pk=request.user.pk).exists()
         ),
     })
 
@@ -253,10 +246,10 @@ def add_app(request):
             app.author = request.user
             app.save()
             messages.success(request, f'Приложение {app.name} опубликовано.')
-            return redirect('main:app_detail', app_id=app.id)
+            return redirect(app.get_absolute_url())
     else:
         form = AppForm()
-    return render(request,'main/add_app.html', {'form' : form})
+    return render(request, 'main/add_app.html', {'form': form})
 
 
 def register(request):
@@ -268,11 +261,12 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request,f"Добро пожаловать, { user.username }. Ваш аккаунт создан!")
+            messages.success(request, f"Добро пожаловать, {user.username}. Ваш аккаунт создан!")
             return redirect('main:index')
     else:
         form = RegisterForm()
-    return render(request, 'main/register.html',{'form' : form})
+    return render(request, 'main/register.html', {'form': form})
+
 
 class StoreLoginView(LoginView):
     template_name = 'main/login.html'
@@ -280,7 +274,7 @@ class StoreLoginView(LoginView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, f"С возвращением,{ self.request.user.username }!")
+        messages.success(self.request, f"С возвращением,{self.request.user.username}!")
         return response
 
 
@@ -291,7 +285,7 @@ class StoreLogoutView(LogoutView):
 @login_required
 def my_apps(request):
     apps = App.objects.filter(author=request.user).order_by('-created_at')
-    return render(request,'main/my_apps.html', {'apps' : apps})
+    return render(request, 'main/my_apps.html', {'apps': apps})
 
 
 @login_required
@@ -303,17 +297,17 @@ def edit_app(request, app_id):
             or app.author_id == request.user.id
     ):
         messages.error(request, 'Редактировать карточку может только её автор.')
-        return redirect('main:app_detail', app_id=app.id)
+        return redirect(app.get_absolute_url())
 
-    if request.method =='POST':
-        form = AppForm(request.POST,request.FILES, instance=app)
+    if request.method == 'POST':
+        form = AppForm(request.POST, request.FILES, instance=app)
         if form.is_valid():
             form.save()
             messages.success(request, f'Карточка {app.name} обновлена.')
-            return redirect('main:app_detail', app_id=app.id)
+            return redirect(app.get_absolute_url())
     else:
         form = AppForm(instance=app)
-    return render(request, 'main/edit_app.html', {'form' : form, 'app' : app})
+    return render(request, 'main/edit_app.html', {'form': form, 'app': app})
 
 
 class StorePasswordResetView(PasswordResetView):
@@ -327,8 +321,10 @@ class StorePasswordResetView(PasswordResetView):
         form.fields['email'].label = 'Электронная почта'
         return form
 
+
 class StorePasswordResetDoneView(PasswordResetDoneView):
     template_name = 'main/password_reset_done.html'
+
 
 class StorePasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'main/password_reset_confirm.html'
@@ -341,24 +337,27 @@ class StorePasswordResetConfirmView(PasswordResetConfirmView):
             form.fields['new_password2'].label = 'Повтор пароля'
         return form
 
+
 class StorePasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'main/password_reset_complete.html'
+
 
 @login_required
 def favorites(request):
     apps = (
         request.user.favorite_apps
-        .select_related('category','author')
+        .select_related('category', 'author')
         .order_by('name')
     )
-    return render(request, 'main/favorites.html', {'apps' : apps})
+    return render(request, 'main/favorites.html', {'apps': apps})
+
 
 @require_POST
 def toggle_favorite(request, app_id):
     app = get_object_or_404(App, id=app_id)
     if not request.user.is_authenticated:
         login_url = reverse('main:login')
-        next_url = reverse('main:app_detail', args=[app.id])
+        next_url = app.get_absolute_url()
         return redirect(f'{login_url}?next={next_url}')
     if app.favorited_by.filter(pk=request.user.pk).exists():
         app.favorited_by.remove(request.user)
@@ -366,5 +365,23 @@ def toggle_favorite(request, app_id):
     else:
         app.favorited_by.add(request.user)
         messages.success(request, f'{app.name} в Избранном.')
-    return redirect('main:app_detail', app_id=app.id)
+    return redirect(app.get_absolute_url())
+
+@login_required
+def sale(request):
+    if not request.user.is_staff:
+        messages.error(request, 'Распродажу запускает только сотрудник магазина.')
+        return redirect('main:index')
+
+    if request.method == 'POST':
+        updated = App.discount_paid(10)
+        messages.success(
+            request,
+            f'Скидка 10% применена к платным приложениям: {updated}.',
+        )
+        return redirect('main:index')
+
+    paid_count = App.objects.filter(price__gt=0).count()
+    return render(request,'main/sale.html', {'paid_count': paid_count})
+
 
