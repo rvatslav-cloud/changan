@@ -4,7 +4,7 @@ from decimal import Decimal,ROUND_HALF_UP
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 
 def validate_non_negative_price(value):
@@ -20,6 +20,33 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Категории'
         verbose_name_plural = 'Категории'
+
+
+class AppQuerySet(models.QuerySet):
+    def free(self):
+        return self.filter(price=0)
+
+    def paid(self):
+        return self.filter(price__gt=0)
+
+    def cheap(self):
+        return self.paid().filter(price__lt=100).order_by('price')
+
+    def newest(self):
+        return self.order_by('-created_at')
+
+    def in_category(self, category):
+        return self.filter(category=category)
+
+
+class AppManager(models.Manager.from_queryset(AppQuerySet)):
+    def move_to_category(self,source,target):
+        if source.pk is None or target.pk is None or source.pk == target.pk:
+            raise ValueError('Нельзя перенести приложения в ту же категорию.')
+        with transaction.atomic():
+            moved = self.model.objects.in_category(source).update(category=target)
+            source.delete()
+        return moved
 
 
 class App(models.Model):
@@ -51,6 +78,8 @@ class App(models.Model):
 
     downloads = models.IntegerField(default=0, verbose_name='Количество скачиваний')
 
+    objects = AppManager()
+
     def __str__(self):
         return self.name
 
@@ -73,7 +102,7 @@ class App(models.Model):
         if type(persent) is not int or not 1 <= persent <=90:
             raise ValueError('Скидка должна быть целым числом от 1 до 90.')
         factor = (Decimal(100) - Decimal(persent)) / Decimal(100)
-        paid = list(cls.objects.filter(price__gt=0))
+        paid = list(cls.objects.paid())
         for app in paid:
             app.price = (app.price * factor).quantize(
                 Decimal('0.01'),

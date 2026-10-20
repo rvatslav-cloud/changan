@@ -23,11 +23,19 @@ urlpatterns = [
 
     # категории и списки
     path('category/<int:category_id>/', views.category_detail, name='category'),
+
+    path('category/<int:category_id>/close/', views.close_category, name='close_category'),
+
     path('free/', views.free_apps, name='free'),
+
     path('new/', views.new, name='new'),
+
     path('top/', views.top_paid, name='top'),
+
     path('nocategory/', views.no_category, name='no_category'),
+
     path('free/<int:category_id>/', views.free_in_category, name='free_in_category'),
+
     path('cheap/', views.cheap_apps, name='cheap'),
 
     # API

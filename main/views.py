@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import  HttpResponse, JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
+
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -123,13 +124,13 @@ def category_detail(request,category_id):
 
 @require_GET
 def free_apps(request):
-    apps = App.objects.filter(price=0).order_by('-created_at')
+    apps = App.objects.free()
     return render(request, 'main/free.html',{'apps' : apps,})
 
 
 @require_GET
 def new(request):
-    apps =App.objects.order_by('-created_at').all()
+    apps =App.objects.newest()
 
     paginator = Paginator(apps,3)
     page_number = request.GET.get('page')
@@ -158,7 +159,7 @@ def free_in_category(request, category_id):
 
 @require_GET
 def cheap_apps(request):
-    apps = App.objects.filter(price__lt = 100,price__gt = 0).order_by('price')
+    apps = App.objects.cheap()
     return render(request,'main/cheap.html',{'apps' : apps})
 
 @require_GET
@@ -179,10 +180,10 @@ def app_detail_with_app_name(request, app_id, app_name):
 @require_GET
 def apps_list(request, is_free):
     if is_free:
-        apps = App.objects.filter(price=0)
+        apps = App.objects.free()
         title = 'Бесплатные приложения'
     else:
-        apps = App.objects.filter(price__gt=0)
+        apps = App.objects.paid()
         title = 'Платные приложения'
 
     return render(request, 'main/apps_list.html', {
@@ -381,7 +382,35 @@ def sale(request):
         )
         return redirect('main:index')
 
-    paid_count = App.objects.filter(price__gt=0).count()
+    paid_count = App.objects.paid().count()
     return render(request,'main/sale.html', {'paid_count': paid_count})
 
 
+@login_required
+def close_category(request, category_id):
+    source = get_object_or_404(Category, pk=category_id)
+    if not request.user.is_staff:
+        messages.error(request, 'Категорию закрывает только сотрудник магазина.')
+        return redirect('main:index')
+
+    targets = Category.objects.exclude(pk=source.pk).order_by('name')
+    if request.method == 'POST':
+        raw_target = request.POST.get('target_id', '')
+        if not str(raw_target).isdigit():
+            messages.error(request, 'Выберите категорию в которую перенести приложения.')
+            return redirect('main:close_category', category_id=source.pk)
+        target = get_object_or_404(Category, pk=int(raw_target))
+        try:
+            moved =App.objects.move_to_category(source,target)
+        except ValueError as exc:
+            messages.error(request, str(exc))
+            return redirect('main:close_category', category_id=source.pk)
+        messages.success(request, f"Категория закрыта. Приложений перенесено: {moved}.")
+        return redirect('main:category', category_id=target.pk)
+
+    apps_count = App.objects.in_category(source).count()
+    return render(request,'main/close_category.html', {
+        'source' : source,
+        'targets' : targets,
+        'apps_count' : apps_count,
+    })
