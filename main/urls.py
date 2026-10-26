@@ -13,6 +13,7 @@ urlpatterns = [
     path('app/<int:app_id>/edit/', views.edit_app, name='edit_app'),
 
     path('app/<int:app_id>/favorite/', views.toggle_favorite, name='toggle_favorite'),
+    path('app/<int:app_id>/buy/', views.buy_app, name='buy_app'),
 
     path('app/<int:app_id>/<str:app_name>/', views.app_detail_with_app_name, name='app_detail_with_app_name'),
     path('app/<int:app_id>/', views.AppDetailView.as_view(), name='app_detail'),
@@ -56,6 +57,7 @@ urlpatterns = [
     path('reset/complete/',views.StorePasswordResetCompleteView.as_view(), name='password_reset_complete'),
     # Избранное
     path('favorites/', views.favorites, name='favorites'),
+    path('purchases/', views.purchases, name='purchases'),
     path('sale/', views.sale, name='sale')
 
 ]

@@ -76,6 +76,13 @@ class App(models.Model):
         verbose_name= 'Число оценок',
     )
 
+    buyers = models.ManyToManyField(
+        User,
+        through= 'Purchase',
+        related_name= 'purchased_apps',
+        verbose_name= "Купили"
+    )
+
     downloads = models.IntegerField(default=0, verbose_name='Количество скачиваний')
 
     objects = AppManager()
@@ -97,6 +104,11 @@ class App(models.Model):
             price__lte= self.price +10,
         ).exclude(pk=self.pk)[:3]
 
+    def purchase_of(self, user):
+        if not user.is_authenticated:
+            return None
+        return self.purchases.filter(user=user).first()
+
     @classmethod
     def discount_paid(cls, persent):
         if type(persent) is not int or not 1 <= persent <=90:
@@ -114,6 +126,32 @@ class App(models.Model):
         verbose_name = 'Приложения'
         verbose_name_plural = 'Приложения'
 
+
+class Purchase(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='purchases')
+    app = models.ForeignKey(App, on_delete=models.CASCADE, related_name='purchases')
+    price_paid = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        validators=[validate_non_negative_price],
+        verbose_name= 'Уплачено',
+    )
+    purchased_at = models.DateTimeField(auto_now_add= True, verbose_name= 'Дата покупки')
+
+    class Meta:
+        verbose_name= 'Покупки'
+        verbose_name_plural = 'Покупки'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'app'], name = 'unique_purchase_user_app'),
+        ]
+
+    def __str__(self):
+        return f'{self.user} -> {self.app}'
+
+    def price_label(self):
+        if self.price_paid == 0:
+            return 'Бесплатно'
+        return f'{self.price_paid} $'
 
 
 class Review(models.Model):

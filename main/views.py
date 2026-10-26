@@ -1,7 +1,7 @@
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import  HttpResponse, JsonResponse
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.core.paginator import Paginator
 
 from django.views.decorators.http import require_GET, require_POST
@@ -22,7 +22,7 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView, ListView, DetailView
 
 from .forms import ReviewForm, AppForm, RegisterForm
-from .models import App, Review, Category
+from .models import App, Review, Category, Purchase
 # Create your views here.
 
 SORTS = {
@@ -96,6 +96,7 @@ class AppDetailView(DetailView):
                 self.request.user.is_authenticated
                 and app.favorited_by.filter(pk=self.request.user.pk).exists()
         )
+        context['purchase'] = app.purchase_of(self.request.user)
         return context
 
 
@@ -103,7 +104,7 @@ class AppDetailView(DetailView):
 def category_detail(request,category_id):
     category = get_object_or_404(Category, id =category_id)
     q = request.GET.get('q', '')
-    apps = App.objects.filter(category=category)
+    apps = App.objects.filter(category=category).defer('description')
     if q:
         apps = apps.filter(Q(name__icontains=q) | Q(description__icontains=q)).order_by('name')
     else:
@@ -130,7 +131,7 @@ def free_apps(request):
 
 @require_GET
 def new(request):
-    apps =App.objects.newest()
+    apps =App.objects.newest().defer('description')
 
     paginator = Paginator(apps,3)
     page_number = request.GET.get('page')
@@ -235,6 +236,7 @@ def add_review(request, app_id):
                 request.user.is_authenticated
                 and app.favorited_by.filter(pk=request.user.pk).exists()
         ),
+        'purchase' : app.purchase_of(request.user)
     })
 
 
@@ -367,6 +369,42 @@ def toggle_favorite(request, app_id):
         app.favorited_by.add(request.user)
         messages.success(request, f'{app.name} в Избранном.')
     return redirect(app.get_absolute_url())
+
+@require_POST
+def buy_app(request, app_id):
+    app = get_object_or_404(App, id=app_id)
+
+    if not request.user.is_authenticated:
+        login_url = reverse('main:login')
+        return redirect(f'{login_url}?next={app.get_absolute_url()}')
+
+    if app.author_id == request.user.id:
+        messages.error(request, 'Это ваше приложение, покупать его не нужно.')
+        return redirect(app.get_absolute_url())
+
+    if app.purchase_of(request.user) is not None:
+        messages.info(request, f'{app.name} уже есть в ваших покупках.')
+        return redirect(app.get_absolute_url())
+
+    app.buyers.add(request.user, through_defaults={'price_paid': app.price})
+    messages.success(request, f'Покупка оформлена: {app.name}, {app.price_label()}.')
+    return redirect(app.get_absolute_url())
+
+
+@login_required
+def purchases(request):
+    items = (
+        Purchase.objects.filter(user=request.user)
+        .select_related('app')
+        .only('price_paid', 'purchased_at', 'app__name', 'app__price')
+        .order_by('-purchased_at')
+    )
+    total = items.aggregate(total=Sum('price_paid'))['total'] or 0
+    return render(request, 'main/purchases.html', {
+        'purchases': items,
+        'total': total,
+    })
+
 
 @login_required
 def sale(request):
