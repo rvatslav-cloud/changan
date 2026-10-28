@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load store_tags %}
 
 <!DOCTYPE html>
 <html lang="ru">
@@ -73,7 +73,7 @@
     {% block content %}{% endblock %}
 
      <footer>
-         Всего на сайте: категорий - {{ categories_total }} и {{ apps_total }} приложений
+         Всего на сайте: {{ apps_total|apps_word }} | {{ categories_total|categories_word }}
      </footer>
 </body>
 </html>

@@ -18,3 +18,25 @@ def reviews_count(value):
         return f'{value} отзыва'
     else:
         return f'{value} отзывов'
+
+
+@register.filter
+def apps_word(value):
+    value = int(value)
+    if value % 10 == 1 and value % 100 != 11:
+        return f'{value} приложение'
+    elif 2 <= value % 10 <= 4 and not (12 <= value % 100 <= 14):
+        return f'{value} приложения'
+    else:
+        return f'{value} приложений'
+
+
+@register.filter
+def categories_word(value):
+    value = int(value)
+    if value % 10 == 1 and value % 100 != 11:
+        return f'{value} категория'
+    elif 2 <= value % 10 <= 4 and not (12 <= value % 100 <= 14):
+        return f'{value} категории'
+    else:
+        return f'{value} категорий'
