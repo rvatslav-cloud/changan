@@ -82,7 +82,7 @@
 
     <p>
         {% if app.rating_count %}
-            Средняя оценка: {{ app.rating_avg|stars }}{{ app.rating_avg }} из 5 (отзывов: {{ app.rating_count }})
+            Средняя оценка: {{ app.rating_avg|stars }}{{ app.rating_avg }} из 5 (отзывов: {{ app.rating_count|reviews_count }})
         {% else %}
             Оценок пока нет
         {% endif %}

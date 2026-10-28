@@ -38,8 +38,8 @@
             <br>
             {{ app.price_label }}
             <br>
-            {{% if app.rating_count %}
-                оценка {{ app.rating_avg|stars }} {{ app.rating_avg }} ({{ app.rating_count }})
+            {% if app.rating_count %}
+                оценка {{ app.rating_avg|stars }} {{ app.rating_avg }} ({{ app.rating_count|reviews_count }})
 
             {% else %}
                 нет оценок

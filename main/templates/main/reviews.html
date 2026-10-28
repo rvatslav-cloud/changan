@@ -1,4 +1,5 @@
 {% extends 'main/base.html' %}
+{% load store_tags %}
 
 {% block title %}Отзывы - LG STORE{% endblock %}
 
@@ -10,12 +11,10 @@
             <p>
                 <strong>{{ review.username }}</strong>
                 <span>
-                    {% for i in "12345"|make_list %}
-                        {% if forloop.counter <= review.stars %}⭐{% endif %}
-                    {% endfor %}
+                   {{ review.stars|stars }}
                 </span>
                 — Приложение:
-                <a href="{% url 'main:app_detail' review.app.id %}">{{ review.app.name }}</a>
+                <a href="{{ review.app.get_absolute_url }}">{{ review.app.name }}</a>
             </p>
             <p>"{{ review.comment }}"</p>
             <p>
