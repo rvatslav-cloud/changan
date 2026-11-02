@@ -4,6 +4,11 @@
 
 {% block content %}
     <h2>Мои покупки</h2>
+    <form method="get">
+        {{ form.non_field_errors }}
+        {{ form.as_p }}
+        <button type="submit">Показать</button>
+    </form>
 
     <ul>
         {% for purchase in purchases %}

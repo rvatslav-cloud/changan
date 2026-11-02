@@ -53,3 +53,24 @@ class RegisterForm(UserCreationForm):
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError('Аккаунт с такой почтой уже есть.')
         return email
+
+
+class PurchaseFilterForm(forms.Form):
+    date_from =forms.DateField(
+        label='С',
+        required=False,
+        widget=forms.DateInput(attrs={'type':'date'}),
+    )
+    date_to = forms.DateField(
+        label='По',
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        date_from = cleaned_data.get('date_from')
+        date_to = cleaned_data.get('date_to')
+        if date_from is not None and date_to is not None and date_from > date_to:
+            raise forms.ValidationError('Дата "С" не может быть позже даты "По"')
+        return cleaned_data

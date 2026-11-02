@@ -21,7 +21,7 @@ from django.urls import reverse_lazy, reverse
 
 from django.views.generic import TemplateView, ListView, DetailView
 
-from .forms import ReviewForm, AppForm, RegisterForm
+from .forms import ReviewForm, AppForm, RegisterForm, PurchaseFilterForm
 from .models import App, Review, Category, Purchase
 # Create your views here.
 
@@ -393,16 +393,25 @@ def buy_app(request, app_id):
 
 @login_required
 def purchases(request):
+    form= PurchaseFilterForm(request.GET)
     items = (
         Purchase.objects.filter(user=request.user)
         .select_related('app')
         .only('price_paid', 'purchased_at', 'app__name', 'app__price')
         .order_by('-purchased_at')
     )
+    if form.is_valid():
+        date_from = form.cleaned_data['date_from']
+        date_to = form.cleaned_data['date_to']
+        if date_from is not None:
+            items = items.filter(purchased_at__date__gte=date_from)
+        if date_to is not None:
+            items = items.filter(purchased_at__date__lte=date_to)
     total = items.aggregate(total=Sum('price_paid'))['total'] or 0
     return render(request, 'main/purchases.html', {
         'purchases': items,
         'total': total,
+        'form': form,
     })
 
 
