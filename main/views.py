@@ -16,6 +16,7 @@ from django.contrib.auth.views import (
     PasswordResetCompleteView,
 )
 from django.contrib import messages
+from django.forms import modelformset_factory
 from django.urls import reverse_lazy, reverse
 
 
@@ -291,6 +292,15 @@ def my_apps(request):
     return render(request, 'main/my_apps.html', {'apps': apps})
 
 
+CategoryNameFormSet = modelformset_factory(
+    Category,
+    fields= ['name'],
+    labels={'name':'Название'},
+    extra=0,
+    edit_only= True,
+)
+
+
 @login_required
 def edit_app(request, app_id):
     app = get_object_or_404(App, id=app_id)
@@ -461,3 +471,21 @@ def close_category(request, category_id):
         'targets' : targets,
         'apps_count' : apps_count,
     })
+
+
+@login_required
+def categories_edit(request):
+    if not request.user.is_staff:
+        messages.error(request, 'Категории переименовывает, только сотрудник магазина.')
+        return redirect('main:index')
+
+    categories = Category.objects.order_by('name')
+    if request.method == 'POST':
+        formset = CategoryNameFormSet(request.POST, queryset=categories)
+        if formset.is_valid():
+            saved = formset.save()
+            messages.success(request, f'Переименовано категорий: {len(saved)}')
+            return redirect('main:index')
+    else:
+        formset = CategoryNameFormSet(queryset=categories)
+    return render(request, 'main/categories_edit.html', {'formset':formset})

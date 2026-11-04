@@ -27,6 +27,7 @@
 
             {% if user.is_staff %}
                 <a href="{% url 'main:sale' %}">Распродажа</a>
+                <a href="{% url 'main:categories_edit' %}">Категории</a>
             {% endif %}
             <span>Вы вошли как <strong>{{ user.username }}</strong></span>
             <form method="post" action="{% url 'main:logout' %}" style="display:inline;">

@@ -1,0 +1,24 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Категории - LG STORE{% endblock %}
+
+{% block content %}
+    <p>Редактировать категории</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        {% for form in formset %}
+            <div>
+                {{ form.as_p }}
+            </div>
+        {% empty %}
+            <p>Категорий пока нет.</p>
+        {% endfor %}
+
+        <button type="submit">Сохранить</button>
+    </form>
+
+    <p><a href="{% url 'main:index' %}">На главную</a></p>
+{% endblock %}

@@ -21,6 +21,7 @@ urlpatterns = [
     # создание и «мои»
     path('add-app/', views.add_app, name='add_app'),
     path('my-apps/', views.my_apps, name='my_apps'),
+    path('categories/edit/', views.categories_edit, name='categories_edit'),
 
     # категории и списки
     path('category/<int:category_id>/', views.category_detail, name='category'),
