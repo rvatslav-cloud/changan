@@ -5,6 +5,8 @@ from django.db.models import Q, Sum
 from django.core.paginator import Paginator
 
 from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import (
@@ -22,7 +24,7 @@ from django.urls import reverse_lazy, reverse
 
 from django.views.generic import TemplateView, ListView, DetailView
 
-from .forms import ReviewForm, AppForm, RegisterForm, PurchaseFilterForm
+from .forms import ReviewForm, AppForm, RegisterForm, PurchaseFilterForm, PriceFilterForm
 from .models import App, Review, Category, Purchase
 # Create your views here.
 
@@ -100,27 +102,41 @@ class AppDetailView(DetailView):
         context['purchase'] = app.purchase_of(self.request.user)
         return context
 
-
+@cache_page(120)
+@vary_on_cookie
 @require_GET
-def category_detail(request,category_id):
-    category = get_object_or_404(Category, id =category_id)
+def category_detail(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
     q = request.GET.get('q', '')
     apps = App.objects.filter(category=category).defer('description')
+
+    form = PriceFilterForm(request.GET)
+    if form.is_valid():
+        price_min = form.cleaned_data['price_min']
+        price_max = form.cleaned_data['price_max']
+        if price_min is not None:
+            apps = apps.filter(price__gte=price_min)
+        if price_max is not None:
+            apps = apps.filter(price__lte=price_max)
+        if form.cleaned_data['sort']:
+            apps = apps.order_by(form.cleaned_data['sort'])
+
     if q:
         apps = apps.filter(Q(name__icontains=q) | Q(description__icontains=q)).order_by('name')
     else:
         apps = apps.order_by('-created_at')
 
-    paginator = Paginator(apps,4)
+    paginator = Paginator(apps, 4)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     most_expensive = apps.order_by('-price').first()
     return render(request, 'main/category.html', {
-        'category' : category,
-        'page_obj' : page_obj,
+        'category': category,
+        'page_obj': page_obj,
         'most_expensive': most_expensive,
-        'q' : q,
+        'q': q,
+        'form': form,
     })
 
 

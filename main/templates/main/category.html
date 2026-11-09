@@ -18,6 +18,16 @@
         <p><a href="{% url 'main:close_category' category.id %}">Закрыть категорию</a></p>
      {% endif %}
 
+     <form method="get" style="display: flex; gap: 5px; align-items: flex-end; flex-wrap: wrap;">
+        {% for field in form %}
+            <div>
+                {{ field.label_tag }}
+                {{ field }}
+            </div>
+        {% endfor %}
+        <button type="submit">Подобрать</button>
+    </form>
+
      <ul>
         {% for app in page_obj %}
         <li>
