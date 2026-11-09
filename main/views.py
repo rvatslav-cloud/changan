@@ -192,6 +192,7 @@ def app_detail_with_app_name(request, app_id, app_name):
     return render(request, 'main/app_detail.html', {
         'app': app,
         'similar_apps': similar_apps,
+        'purchase': app.purchase_of(request.user),
     })
 
 

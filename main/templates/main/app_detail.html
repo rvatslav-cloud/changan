@@ -45,7 +45,8 @@
             {% endif %}
         </form>
     {% else %}
-        <p><a href="{% url 'main:login' %}?next={{ request.path }}">Войдите</a>, чтобы сохранить приложение в избранное.</p>
+        <p><a href="{% url 'main:login' %}?next={{ request.path }}">
+            Войдите</a>,чтобы сохранить приложение в избранное.</p>
     {% endif %}
 
     {% if purchase %}
@@ -82,7 +83,8 @@
 
     <p>
         {% if app.rating_count %}
-            Средняя оценка: {{ app.rating_avg|stars }}{{ app.rating_avg }} из 5 (отзывов: {{ app.rating_count|reviews_count }})
+            Средняя оценка:
+        {{ app.rating_avg|stars }}{{ app.rating_avg }} из 5 {{ app.rating_count|reviews_count }}
         {% else %}
             Оценок пока нет
         {% endif %}
