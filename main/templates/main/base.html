@@ -1,10 +1,12 @@
 {% load static %}
 {% load store_tags %}
+{% load django_bootstrap5 %}
 
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    {% bootstrap_css %}
     <link rel="stylesheet" href="{% static 'main/style.css' %}">
     <title> {% block title %}LG STORE{% endblock %} </title>
 </head>
@@ -40,13 +42,8 @@
         {% endif %}
     </nav>
 
-    {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+    {% bootstrap_messages %}
+
 
    <p class="categories-nav">
         Категории:
@@ -76,5 +73,7 @@
      <footer>
          Всего на сайте: {{ apps_total|apps_word }} | {{ categories_total|categories_word }}
      </footer>
+
+{% bootstrap_javascript %}
 </body>
 </html>

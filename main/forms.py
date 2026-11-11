@@ -16,6 +16,9 @@ class ReviewForm(forms.ModelForm):
             'stars' : 'Оценка (1 - 5)',
             'recommended' : 'Рекомендую',
         }
+        help_texts = {
+            'comment': 'Можно использовать: [b]жирный[/b], [i]курсив[/i], [list][*]пункт[/list]',
+        }
 
     def clean_stars(self):
         stars = self.cleaned_data['stars']

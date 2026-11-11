@@ -1,5 +1,7 @@
 {% extends 'main/base.html' %}
 {% load store_tags %}
+{% load django_bootstrap5 %}
+{% load bbcode_tags %}
 
 {% block title %} {{ app.name }} - LG STORE {% endblock %}
 
@@ -100,7 +102,7 @@
                     {{ review.stars|stars }}
                 </span>
             </p>
-            <p>"{{ review.comment }}"</p>
+            <div>{% bbcode review.comment %}</div>
             <p>
                 {% if review.recommended %}
                     Рекомендует
@@ -118,12 +120,13 @@
     {% if user.is_authenticated %}
         <p>Отзыв будет опубликован от имени <strong>{{ user.username }}</strong>.</p>
     {% else %}
-        <p>Вы можете оставить отзыв без входа или <a href="{% url 'main:login' %}">войти</a>, чтобы подписать его своим аккаунтом.</p>
+        <p>Вы можете оставить отзыв без входа или <a href="{% url 'main:login' %}">войти</a>,
+            чтобы подписать его своим аккаунтом.</p>
     {% endif %}
 
     <form method="post" action="{% url 'main:add_review' app.id %}">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Отправить отзыв</button>
+        {% bootstrap_form form %}
+        <button type="submit" class="btn btn-primary">Отправить отзыв</button>
     </form>
 {% endblock %}
