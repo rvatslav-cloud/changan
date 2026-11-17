@@ -1,10 +1,11 @@
 from decimal import Decimal, ROUND_HALF_UP
 
 from django.db.models import Avg, Count
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_save
+from django.core.cache import cache
 from django.dispatch import receiver
 
-from .models import App, Review
+from .models import App, Review, Category
 
 
 def refresh_app_rating(app_id):
@@ -34,3 +35,26 @@ def review_saved(sender, instance, **kwargs):
 @receiver(post_delete, sender=Review, dispatch_uid='main.review_deleted_refresh_rating')
 def review_deleted(sender, instance, **kwargs):
     refresh_app_rating(instance.app_id)
+
+@receiver([post_save,post_delete], sender=App)
+@receiver([post_save,post_delete], sender=Category)
+@receiver([post_save,post_delete], sender=Review)
+def clear_store_page(sender, **kwargs):
+    cache.clear()
+
+@receiver(pre_save, sender=App)
+def delete_old_icon(sender, instance, **kwargs):
+    old = App.objects.filter(pk=instance.pk).first()
+    if old and old.icon and old.icon != instance.icon:
+        old.icon.delete(save=False)
+
+@receiver(post_delete, sender=App)
+def delete_app_icon_on_delete(sender, instance, **kwargs):
+    if instance.icon:
+        instance.icon.delete(save=False)
+
+@receiver(pre_save, sender=Category)
+def delete_old_category_icon(sender, instance, **kwargs):
+    old = Category.objects.filter(pk=instance.pk).first()
+    if old and old.icon and old.icon != instance.icon:
+        old.icon.delete(save=False)

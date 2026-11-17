@@ -6,13 +6,32 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.urls import reverse
+from pathlib import Path
+from uuid import uuid4
+from django.core.validators import FileExtensionValidator
+from easy_thumbnails.fields import ThumbnailerImageField
 
 def validate_non_negative_price(value):
     if value < 0:
         raise ValidationError('Цена не может быть отрицательной')
 
+def icon_upload_to(instance, filename):
+    extension = Path(filename).suffix.lower()
+    if instance.author_id:
+        return f'icons/{instance.author_id}/{uuid4().hex}{extension}'
+    return f'icons/store/{uuid4().hex}{extension}'
+
 class Category(models.Model):
     name = models.CharField(max_length=50)
+    icon = ThumbnailerImageField(
+        upload_to='categories/',
+        resize_source={'size': (32, 32)},
+        blank=True,
+        validators=[FileExtensionValidator(
+            allowed_extensions=['png', 'jpg', 'jpeg', 'webp'],
+            message='Иконка должна быть в формате PNG, JPG или WebP',
+        )],
+    )
 
     def __str__(self):
         return self.name
@@ -60,7 +79,15 @@ class App(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
-    icon = models.ImageField(upload_to='icons/', blank=True)
+    icon = ThumbnailerImageField(
+        upload_to=icon_upload_to,
+        resize_source={'size': (256, 256)},
+        blank=True,
+        validators=[FileExtensionValidator(
+            allowed_extensions=['png', 'jpg', 'jpeg', 'webp'],
+            message='Иконка должна быть в формате PNG, JPG или WebP',
+        )],
+    )
     author = models.ForeignKey(User,on_delete=models.SET_NULL, null=True, blank=True,related_name='apps')
     favorited_by =models.ManyToManyField(User, related_name='favorite_apps', blank=True, verbose_name='В Избранном у',)
     rating_avg = models.DecimalField(
