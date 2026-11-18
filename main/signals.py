@@ -4,8 +4,9 @@ from django.db.models import Avg, Count
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.core.cache import cache
 from django.dispatch import receiver
+from django.contrib.auth.models import User
 
-from .models import App, Review, Category
+from .models import App, Review, Category, Profile
 
 
 def refresh_app_rating(app_id):
@@ -58,3 +59,8 @@ def delete_old_category_icon(sender, instance, **kwargs):
     old = Category.objects.filter(pk=instance.pk).first()
     if old and old.icon and old.icon != instance.icon:
         old.icon.delete(save=False)
+
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)

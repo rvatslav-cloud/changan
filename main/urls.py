@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 app_name = 'main'
@@ -59,6 +59,10 @@ urlpatterns = [
     # Избранное
     path('favorites/', views.favorites, name='favorites'),
     path('purchases/', views.purchases, name='purchases'),
-    path('sale/', views.sale, name='sale')
+    path('sale/', views.sale, name='sale'),
 
+    path('my-profile/', views.EditProfileView.as_view(), name='edit_profile'),
+    path('devs/', views.DevListView.as_view(), name='devs'),
+    # Профиль разработчика
+    re_path(r'^dev/(?P<username>[\w.@+-]+)/$', views.dev_page, name='dev_page'),
 ]

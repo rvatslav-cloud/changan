@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, App, Review, Purchase
+from .models import Category, App, Review, Purchase, Profile
 
 # Register your models here.
 
@@ -32,3 +32,7 @@ class PurchaseAdmin(admin.ModelAdmin):
     list_display = ('user', 'app', 'price_paid', 'purchased_at')
     list_filter = ('app',)
 
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'bio', 'website']
+    search_fields = ['user__username', 'bio']

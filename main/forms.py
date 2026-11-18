@@ -3,7 +3,7 @@ from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import Review, App
+from .models import Review, App, Profile
 
 
 class ReviewForm(forms.ModelForm):
@@ -99,3 +99,9 @@ class PriceFilterForm(forms.Form):
         if price_min is not None and price_max is not None and price_min > price_max:
             raise forms.ValidationError('Цена «от» не может быть больше цены «до»')
         return cleaned_data
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio', 'website']

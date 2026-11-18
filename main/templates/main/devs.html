@@ -1,0 +1,18 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Разработчики - LG STORE{% endblock %}
+
+{% block content %}
+    <h2>Разработчики магазина</h2>
+
+    <ul>
+        {% for dev in developers %}
+            <li>
+                <a href="{% url 'main:dev_page' dev.username %}">{{ dev.username }}</a>
+                — приложений: {{ dev.apps_count }}
+            </li>
+        {% empty %}
+            <li>Разработчиков пока нет.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

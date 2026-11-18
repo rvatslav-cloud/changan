@@ -1,0 +1,24 @@
+{% extends 'main/base.html' %}
+
+{% block title %}{{ developer.username }} - LG STORE{% endblock %}
+
+{% block content %}
+<h2> Разработчик {{ developer.username }} </h2>
+
+{% if developer.profile %}
+    {% if developer.profile.bio %}
+        <p>{{ developer.profile.bio }}</p>
+    {% endif %}
+    {% if developer.profile.website %}
+        <p>Сайт: <a href="{{ developer.profile.website }}">{{ developer.profile.website }}</a></p>
+    {% endif %}
+{% endif %}
+
+<h3> Приложения </h3>
+{% for app in apps %}
+    <p><a href="{{ app.get_absolute_url }}">{{ app.name }}</a> - {{ app.price_label }}</p>
+{% empty %}
+    <p> Приложений пока нет. </p>
+{% endfor %}
+    <p>Продано копий: {{ sold }}</p>
+{% endblock %}
