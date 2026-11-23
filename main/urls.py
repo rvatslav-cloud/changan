@@ -65,4 +65,15 @@ urlpatterns = [
     path('devs/', views.DevListView.as_view(), name='devs'),
     # Профиль разработчика
     re_path(r'^dev/(?P<username>[\w.@+-]+)/$', views.dev_page, name='dev_page'),
+
+
+]
+
+
+urlpatterns += [
+    path('api/apps/', views.api_apps, name='api_apps'),
+    path('api/apps/<int:pk>/', views.ApiAppView.as_view(), name='api_app'),
+    path('api/apps/<int:app_id>/reviews/', views.api_app_reviews, name='api_app_reviews'),
+    path('api/devs/', views.api_devs, name='api_devs'),
+    path('api/devs/<int:user_id>/', views.api_devs, name='api_dev'),
 ]
