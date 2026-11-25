@@ -30,11 +30,12 @@ from .models import App, Review, Category, Purchase, Profile
 # Create your views here.
 
 from rest_framework import generics, permissions, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from .serializers import AppSerializer, UserSerializer, ReviewSerializer
+from .serializers import AppSerializer, UserSerializer, ReviewSerializer, PurchaseSerializer
 
 SORTS = {
     'new' : '-created_at',
@@ -639,3 +640,28 @@ def api_app_reviews(request, app_id):
     page = paginator.paginate_queryset(reviews, request)
     serializer = ReviewSerializer(page, many=True)
     return paginator.get_paginated_response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_me(request):
+    return Response({
+        'id': request.user.id,
+        'username': request.user.username,
+        'is_staff': request.user.is_staff,
+    })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_my_purchases(request):
+    purchases = (
+        Purchase.objects.filter(user=request.user)
+        .select_related('app')
+        .order_by('-purchased_at')
+    )
+    total = purchases.aggregate(total=Sum('price_paid'))['total'] or 0
+    serializer = PurchaseSerializer(purchases, many=True)
+    return Response({
+        'total': total,
+        'purchases': serializer.data,
+    })
