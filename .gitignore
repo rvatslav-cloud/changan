@@ -222,3 +222,5 @@ db.sqlite3
 
 .idea
 /media/
+
+.env

@@ -23,7 +23,13 @@
             Без категории
         {% endif %}
     </p>
-    <p><strong>{{ app.price_label }}</strong></p>
+    <p>
+    <strong>{{ app.price_label }}</strong>
+    {% if app.price_before_sale %}
+        <s>{{ app.price_before_sale }} $</s>
+        {% sale_percent app.price app.price_before_sale %}
+    {% endif %}
+    </p>
 
     <p>{{ app.description|default:"Описание пока не добавлено" }}</p>
     <p>Добавлено: {{ app.created_at|date:"d.m.Y H:i" }}</p>

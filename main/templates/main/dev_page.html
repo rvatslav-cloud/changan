@@ -5,18 +5,18 @@
 {% block content %}
 <h2> Разработчик {{ developer.username }} </h2>
 
-{% if developer.profile %}
-    {% if developer.profile.bio %}
-        <p>{{ developer.profile.bio }}</p>
+{% with profile=developer.profile %}
+    {% if profile.bio %}
+        <p>{{ profile.bio }}</p>
     {% endif %}
-    {% if developer.profile.website %}
-        <p>Сайт: <a href="{{ developer.profile.website }}">{{ developer.profile.website }}</a></p>
+    {% if profile.website %}
+        <p>Сайт: <a href="{{ profile.website }}">{{ profile.website }}</a></p>
     {% endif %}
-{% endif %}
+{% endwith %}
 
 <h3> Приложения </h3>
 {% for app in apps %}
-    <p><a href="{{ app.get_absolute_url }}">{{ app.name }}</a> - {{ app.price_label }}</p>
+    {% include 'main/_app_card.html' %}
 {% empty %}
     <p> Приложений пока нет. </p>
 {% endfor %}

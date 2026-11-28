@@ -7,18 +7,9 @@
 
     <p>Приложение, которое сохранили вы, {{ user.username }}</p>
 
-    <ul>
-        {% for app in apps %}
-            <li>
-                <a href="{% url 'main:app_detail' app.id %}">{{ app.name }}</a>
-                -
-                {% if app.price == 0 %}Бесплатно{% else %}{{ app.price }} ${% endif %}
-                -
-                автор:
-                {% if app.author %}{{ app.author.username }}{% else %}не указан{% endif %}
-            </li>
-        {% empty %}
-            <li>В избранном пока пусто. Откройте карточку приложения и нажмите «В избранное».</li>
-        {% endfor %}
-    </ul>
+    {% for app in apps %}
+        {% include 'main/_app_card.html' %}
+    {% empty %}
+        <p>В избранном пока пусто. Откройте карточку приложения и нажмите «В избранное».</p>
+    {% endfor %}
 {% endblock %}

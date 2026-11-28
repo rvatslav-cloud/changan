@@ -458,6 +458,10 @@ def sale(request):
         return redirect('main:index')
 
     if request.method == 'POST':
+        if 'end_sale' in request.POST:
+            restored = App.end_sale()
+            messages.success(request, f'Распродажа завершена, цены возвращены: {restored}')
+            return redirect('main:index')
         updated = App.discount_paid(10)
         messages.success(
             request,
